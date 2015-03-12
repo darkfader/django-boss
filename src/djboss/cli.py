@@ -15,6 +15,8 @@ class SettingsImportError(ImportError):
 
 
 def get_settings():
+    cwd = os.getcwd()
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', os.path.basename(cwd) + '.settings')
     sys.path.append(os.getcwd())
     try:
         from django.conf import settings

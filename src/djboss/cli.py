@@ -16,22 +16,12 @@ class SettingsImportError(ImportError):
 
 def get_settings():
     sys.path.append(os.getcwd())
-    if 'DJANGO_SETTINGS_MODULE' in os.environ:
-        try:
-            return import_module(os.environ['DJANGO_SETTINGS_MODULE'])
-        except ImportError, exc:
-            raise SettingsImportError(textwrap.dedent("""\
-                There was an error importing the module specified by the
-                DJANGO_SETTINGS_MODULE environment variable. Make sure that it
-                refers to a valid and importable Python module."""), exc)
-
     try:
-        import settings
+        from django.conf import settings
     except ImportError, exc:
         raise SettingsImportError(textwrap.dedent("""\
-            Couldn't import a settings module. Make sure that a `settings.py`
-            file exists in the current directory, and that it can be imported,
-            or that the DJANGO_SETTINGS_MODULE environment variable points
+            Couldn't import a settings module. Make sure that the
+            DJANGO_SETTINGS_MODULE environment variable points
             to a valid and importable Python module."""), exc)
     return settings
 
@@ -72,9 +62,8 @@ def main():
         print >> sys.stderr, '\t' + str(exc.args[1])
         sys.exit(1)
 
-    from django.core import management as mgmt
-    mgmt.setup_environ(settings)
-
+    import django
+    django.setup()
     commands = find_all_commands(settings.INSTALLED_APPS)
 
     from djboss.parser import PARSER
